@@ -32,9 +32,7 @@ client.connect((err) => {
       daily.insertOne(data).then((result) => {
         res.status(200).send(result.acknowledged);
       });
-    } catch (error) {
-      return res.status(422).send(error.message);
-    }
+    } catch {}
   });
 
   app.get("/dailyAccounts/:date", (req, res) => {
@@ -88,19 +86,19 @@ client.connect((err) => {
     const id = req.params.id;
     const data = req.body;
 
-    console.log(data)
-
     try {
-      daily.updateOne({_id: ObjectId(id)}, {
-        $set: data
-      })
-      .then((result) => {
-        res.status(200).send(result.modifiedCount > 0);
-      });
-    } catch (error) {
-      
-    }
-  })
+      daily
+        .updateOne(
+          { _id: ObjectId(id) },
+          {
+            $set: data,
+          }
+        )
+        .then((result) => {
+          res.status(200).send(result.modifiedCount > 0);
+        });
+    } catch (error) {}
+  });
 
   app.delete("/deleteRecord/:id", (req, res) => {
     try {
