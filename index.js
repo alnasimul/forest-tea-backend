@@ -22,6 +22,7 @@ app.get("/", (req, res) => {
 
 client.connect((err) => {
   const daily = client.db(process.env.DB_NAME).collection("daily_accounts");
+  const stocks = client.db(process.env.DB_NAME).collection("stocks");
 
   // daily accounts operations
 
@@ -110,6 +111,29 @@ client.connect((err) => {
       });
     } catch (error) {}
   });
+
+  // stocks related oprerations
+
+  app.post("/addStock", (req, res) => {
+    const data = req.body;
+
+    try {
+      stocks.insertOne(data).then((result) => {
+        res.status(200).send(result.acknowledged);
+      });
+    } catch (error) {}
+  });
+
+  app.get('/stocks', (req, res) => {
+    try {
+      stocks.find({})
+      .toArray((err, documents) => {
+        res.status(200).send(documents)
+      })
+    } catch (error) {
+      
+    }
+  })
 
   console.log("Connected to mongo instance...");
 });
