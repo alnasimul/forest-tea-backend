@@ -135,6 +135,37 @@ client.connect((err) => {
     }
   })
 
+  app.patch('/updateStock/:id', (req, res) => {
+    const id = req.params.id;
+    const data = req.body;
+
+    try {
+      stocks.updateOne({_id: ObjectId(id)},{
+        $set: data
+      })
+      .then( result => {
+        res.status(200).send( result.modifiedCount > 0)
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  })
+
+  app.delete('/deleteStock/:id', (req, res) => {
+
+    const id = req.params.id;
+
+    try {
+      stocks.deleteOne({_id: ObjectId(id)})
+      .then(result => {
+        res.status(200).send(result.deletedCount > 0)
+      })
+    } catch (error) {
+      
+    }
+
+  })
+
   console.log("Connected to mongo instance...");
 });
 
