@@ -166,6 +166,10 @@ client.connect((err) => {
 
   })
 
+  app.patch('/updateProductsStocksQuantity', (req, res) => {
+    console.log(req.body);
+  })
+
   console.log("Connected to mongo instance...");
 });
 
