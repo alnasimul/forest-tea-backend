@@ -135,6 +135,13 @@ client.connect((err) => {
     }
   })
 
+  app.get('/getProductByName/:name', (req, res) => {
+    const name = req.params.name;
+
+    stocks.find({productName: {$regex: name}})
+    .toArray((err, documents) => res.status(200).send(documents))
+  })
+
   app.patch('/updateStock/:id', (req, res) => {
     const id = req.params.id;
     const data = req.body;
@@ -167,8 +174,17 @@ client.connect((err) => {
   })
 
   app.patch('/updateProductsStocksQuantity', (req, res) => {
-    console.log(req.body);
-  })
+    const data = req.body;
+    try {
+      data.forEach(element => {
+        stocks.updateOne({_id: ObjectId(element.productId)},{
+          $inc: {stock: - element.itemQuantity}
+        }).then(result => res.status(200).send(result.modifiedCount> 0))
+      });
+    } catch (error) {
+      console.log(error)
+    }
+   })
 
   console.log("Connected to mongo instance...");
 });
