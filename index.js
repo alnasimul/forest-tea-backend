@@ -23,6 +23,7 @@ app.get("/", (req, res) => {
 client.connect((err) => {
   const daily = client.db(process.env.DB_NAME).collection("daily_accounts");
   const stocks = client.db(process.env.DB_NAME).collection("stocks");
+  const returns = client.db(process.env.DB_NAME).collection("returns");
 
   // daily accounts operations
 
@@ -124,67 +125,117 @@ client.connect((err) => {
     } catch (error) {}
   });
 
-  app.get('/stocks', (req, res) => {
+  app.get("/stocks", (req, res) => {
     try {
-      stocks.find({})
-      .toArray((err, documents) => {
-        res.status(200).send(documents)
-      })
-    } catch (error) {
-      
-    }
-  })
+      stocks.find({}).toArray((err, documents) => {
+        res.status(200).send(documents);
+      });
+    } catch (error) {}
+  });
 
-  app.get('/getProductByName/:name', (req, res) => {
+  app.get("/getProductByName/:name", (req, res) => {
     const name = req.params.name;
 
-    stocks.find({productName: {$regex: name}})
-    .toArray((err, documents) => res.status(200).send(documents))
-  })
+    stocks
+      .find({ productName: { $regex: name } })
+      .toArray((err, documents) => res.status(200).send(documents));
+  });
 
-  app.patch('/updateStock/:id', (req, res) => {
+  app.patch("/updateStock/:id", (req, res) => {
     const id = req.params.id;
     const data = req.body;
 
     try {
-      stocks.updateOne({_id: ObjectId(id)},{
-        $set: data
-      })
-      .then( result => {
-        res.status(200).send( result.modifiedCount > 0)
-      })
+      stocks
+        .updateOne(
+          { _id: ObjectId(id) },
+          {
+            $set: data,
+          }
+        )
+        .then((result) => {
+          res.status(200).send(result.modifiedCount > 0);
+        });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  })
+  });
 
-  app.delete('/deleteStock/:id', (req, res) => {
-
+  app.delete("/deleteStock/:id", (req, res) => {
     const id = req.params.id;
 
     try {
-      stocks.deleteOne({_id: ObjectId(id)})
-      .then(result => {
-        res.status(200).send(result.deletedCount > 0)
-      })
-    } catch (error) {
-      
-    }
+      stocks.deleteOne({ _id: ObjectId(id) }).then((result) => {
+        res.status(200).send(result.deletedCount > 0);
+      });
+    } catch (error) {}
+  });
 
-  })
-
-  app.patch('/updateProductsStocksQuantity', (req, res) => {
+  app.patch("/updateProductsStocksQuantity", (req, res) => {
     const data = req.body;
     try {
-      data.forEach(element => {
-        stocks.updateOne({_id: ObjectId(element.productId)},{
-          $inc: {stock: - element.itemQuantity}
-        }).then(result => res.status(200).send(result.modifiedCount> 0))
+      data.forEach((element) => {
+        stocks
+          .updateOne(
+            { _id: ObjectId(element.productId) },
+            {
+              $inc: { stock: -element.itemQuantity },
+            }
+          )
+          .then((result) => res.status(200).send(result.modifiedCount > 0));
       });
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-   })
+  });
+
+  app.patch("/returnProductsStocksQuantity", (req, res) => {
+    const data = req.body;
+    try {
+      data.forEach((element) => {
+        stocks
+          .updateOne(
+            { _id: ObjectId(element.productId) },
+            {
+              $inc: { stock: +element.itemQuantity },
+            }
+          )
+          .then((result) => res.status(200).send(result.modifiedCount > 0));
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  });
+
+  // return related operations
+
+  app.post("/returnItems", (req, res) => {
+    const data = req.body;
+
+    try {
+      returns.insertOne(data).then((result) => {
+        res.status(200).send(result.acknowledged);
+      });
+    } catch (error) {}
+  });
+
+  app.get("/returns", (req, res) => {
+    try {
+      returns.find({}).toArray((err, documents) => {
+        res.status(200).send(documents);
+      });
+    } catch (error) {}
+  });
+
+  app.delete("/deleteReturn/:id", (req, res) => {
+    const id = req.params.id;
+
+    try {
+      returns
+        .deleteOne({ _id: ObjectId(id) })
+        .then((result) => res.status(200).send(result.deletedCount > 0));
+    } catch (error) {}
+  });
 
   console.log("Connected to mongo instance...");
 });
