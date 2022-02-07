@@ -113,6 +113,64 @@ client.connect((err) => {
     } catch (error) {}
   });
 
+  app.post('/searchAccountRecords', (req, res) => {
+
+    const data = req.body;
+
+    const {invoiceNo, customerName, email, phone, address, year, month} = data;
+
+    try {
+      if(invoiceNo){
+        daily.find({invoiceNo})
+        .toArray((err, documents) => {
+          res.status(200).send(documents)
+        })
+      }
+      else if(customerName){
+        daily.find({customerName})
+        .toArray((err, documents) => {
+          res.status(200).send(documents)
+        })
+      }
+      else if(email){
+        daily.find({email})
+        .toArray((err, documents) => {
+          res.status(200).send(documents)
+        })
+      }
+      else if(phone){
+        daily.find({phone})
+        .toArray((err, documents) => {
+          res.status(200).send(documents)
+        })
+      }
+      else if(address){
+        daily.find({address})
+        .toArray((err, documents) => {
+          res.status(200).send(documents)
+        })
+      }
+      else if(month){
+        daily.find({month})
+        .toArray((err, documents) => {
+          res.status(200).send(documents)
+        })
+      }
+      else if(year){
+        daily.find({year})
+        .toArray((err, documents) => {
+          res.status(200).send(documents)
+        })
+      }
+    } catch (error) {
+        console.log(error)
+    }
+
+   
+
+    console.log(data)
+  })
+
   // stocks related oprerations
 
   app.post("/addStock", (req, res) => {
