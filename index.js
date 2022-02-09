@@ -84,7 +84,7 @@ client.connect((err) => {
     } catch (error) {}
   });
 
-  app.patch("/updateDailyAccountRecord/:id", (req, res) => {
+  app.patch("/updateSaleRecord/:id", (req, res) => {
     const id = req.params.id;
     const data = req.body;
 
