@@ -24,6 +24,21 @@ client.connect((err) => {
   const daily = client.db(process.env.DB_NAME).collection("daily_accounts");
   const stocks = client.db(process.env.DB_NAME).collection("stocks");
   const returns = client.db(process.env.DB_NAME).collection("returns");
+  const members = client.db(process.env.DB_NAME).collection("members");
+
+  // member related operations
+
+  app.get("/checkAdmin/:email", (req,res) => {
+    const email = req.params.email;
+
+    try {
+      members.find({ role: "admin", email }).toArray((err, documents) => {
+        res.status(200).send(documents.length > 0);
+      });
+    } catch (error) {
+      
+    }
+  })
 
   // daily accounts operations
 
@@ -38,9 +53,9 @@ client.connect((err) => {
   });
 
   app.get("/dailyAccounts/:date", (req, res) => {
-    const currentDate = req.params.date;
+    const purchaseDate = req.params.date;
 
-    daily.find({}).toArray((err, documents) => {
+    daily.find({purchaseDate}).toArray((err, documents) => {
       if (err) {
         return res.status(422).send(err.message);
       }
@@ -191,9 +206,18 @@ client.connect((err) => {
     const name = req.params.name;
 
     stocks
-      .find({ productName: { $regex: name } })
+      .find({ productName: { $regex: name, $options: '-i'} })
       .toArray((err, documents) => res.status(200).send(documents));
   });
+
+  app.get("/stocksByName/:name", (req,res) => {
+    const name = req.params.name;
+
+    stocks.find({
+      productName: { $regex: name, $options: '-i'}
+    })
+    .toArray((err, documents) => res.status(200).send(documents));
+  })
 
   app.patch("/updateStock/:id", (req, res) => {
     const id = req.params.id;
